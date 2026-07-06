@@ -1,7 +1,9 @@
-import { LiveTrackingStatus, RouteGeoJSON } from "@/types";
+import { LiveTrackingStatus, RouteGeoJSON, UpdateItem } from "@/types";
 import { supabasePublic } from "./supabase/publicClient";
 import { computeProgressFromPoint } from "./route-progress";
+import { getDriveUpdates } from "./drive";
 import routeGeoJSON from "@/data/route.geo.json";
+import { UPDATES } from "@/data/updates";
 
 /**
  * INTEGRATIONS LAYER.
@@ -87,4 +89,17 @@ export async function getRouteGeoJSON(): Promise<RouteGeoJSON | null> {
   // TODO: swap this static import for the real Komoot-derived route once
   // it exists (see notes above).
   return routeGeoJSON as unknown as RouteGeoJSON;
+}
+
+/**
+ * DAILY UPDATES — pulled from the shared Google Drive folder (see
+ * src/lib/drive.ts) once GOOGLE_DRIVE_API_KEY is configured; Marius labels
+ * each upload with "(Day N)" or "(Teaser)" at the end of the filename and it
+ * shows up here automatically, already sorted and labeled. Falls back to the
+ * static src/data/updates.ts placeholders if Drive isn't configured yet, or
+ * the folder is temporarily empty/unreachable, so the section never breaks.
+ */
+export async function getDailyUpdates(): Promise<UpdateItem[]> {
+  const driveItems = await getDriveUpdates();
+  return driveItems.length > 0 ? driveItems : UPDATES;
 }

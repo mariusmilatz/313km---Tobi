@@ -21,11 +21,18 @@ export type UpdateMediaType = "photo" | "video";
 
 export interface UpdateItem {
   id: string;
-  day: number;
+  day: number | null; // null for items that aren't tied to a specific day (e.g. a teaser)
   type: UpdateMediaType;
   caption: string;
   timestamp: string; // ISO string
   mediaUrl?: string; // TODO: populate once media storage (e.g. Supabase Storage) is connected
+  // The fields below are only populated for updates sourced from Google
+  // Drive (see src/lib/drive.ts) — static/placeholder entries leave them
+  // undefined and UpdateCard falls back to the plain gradient placeholder.
+  label?: string; // display label, e.g. "Day 3" or "Teaser" (derived from the filename)
+  isTeaser?: boolean;
+  driveFileId?: string;
+  thumbnailUrl?: string;
 }
 
 export interface Sponsor {

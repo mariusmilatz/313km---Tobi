@@ -103,10 +103,55 @@ keys in Vercel (Project Settings → Environment Variables):
 | `SUPABASE_URL` | Same as above | No |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Project Settings → API → `service_role` secret | **No — never expose this** |
 | `TRACCAR_SHARED_SECRET` | Make up any random string | No |
+| `GOOGLE_DRIVE_API_KEY` | Google Cloud Console → Credentials (see below) | No |
+| `GOOGLE_DRIVE_FOLDER_ID` | Optional — only if not using the default folder | No |
 
 The Supabase project (`tobi-runs-eifelsteig`, region eu-central-1) and the
 `track_points` / `garmin_livetrack_config` tables already exist — you only
 need to fill in the service role key and pick a Traccar secret.
+
+## Daily Updates from Google Drive
+
+The "From the trail" slider pulls straight from a shared Google Drive folder
+(`src/lib/drive.ts`) — no manual editing of `src/data/updates.ts` needed once
+this is set up. Upload a video or photo into the folder, name it with the day
+(or "Teaser") in brackets at the very end of the filename, and it appears on
+the site automatically, already labeled and sorted correctly.
+
+**Filename convention:**
+
+- `Ridge line above Blankenheim (Day 5).mp4` → caption "Ridge line above
+  Blankenheim", badge "Day 5"
+- `Trail teaser (Teaser).mov` → caption "Trail teaser", badge "Teaser"
+- The bracket has to be the last thing before the file extension. Anything
+  else in brackets (a typo, a different word) still shows up as a label
+  as-is, so a mistake is visible instead of silently ignored.
+- Teasers always sort first, then days in order (1, 2, 3...), then anything
+  else by upload time.
+
+**One-time setup:**
+
+1. Make sure the Drive folder is shared as **"Anyone with the link" → Viewer**
+   (Share → General access). This is what lets the site read it without you
+   granting Claude or Vercel access to your Google account.
+2. Go to [Google Cloud Console](https://console.cloud.google.com/) → create a
+   project (or use an existing one) → **APIs & Services → Library** → enable
+   **Google Drive API**.
+3. **APIs & Services → Credentials → Create Credentials → API key**. Click
+   into the new key and under "API restrictions" choose **Restrict key** →
+   select only **Google Drive API** (keeps the key harmless even if it ever
+   leaked, since it can only read public Drive files).
+4. Set `GOOGLE_DRIVE_API_KEY` to that key in `.env.local` and in Vercel
+   (Project Settings → Environment Variables), then redeploy.
+
+The folder ID is already hardcoded as the default in `src/lib/drive.ts`
+(from the link you shared:
+`https://drive.google.com/drive/folders/1FbwIyvFjQSW_DXcFHmXjkMKFwGjKUfXj`) —
+you only need `GOOGLE_DRIVE_FOLDER_ID` if you ever switch to a different
+folder.
+
+Until `GOOGLE_DRIVE_API_KEY` is set, the site just shows the static
+placeholder entries in `src/data/updates.ts` — nothing breaks either way.
 
 ## The route
 
@@ -192,4 +237,6 @@ password (GitHub no longer accepts account passwords for git operations).
 - [ ] Each morning of the run: start Tobi's Garmin LiveTrack session and
       update `garmin_livetrack_config` with that day's session ID/token.
 - [ ] Swap sponsor placeholders for real logos once partnerships are confirmed.
-- [ ] Replace daily-update placeholders with real photos/video as they come in.
+- [ ] Set `GOOGLE_DRIVE_API_KEY` in Vercel (see "Daily Updates from Google
+      Drive" above) so the slider pulls real uploads instead of placeholders.
+- [ ] Point `src/data/social.ts` at the real Instagram handle.

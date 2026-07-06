@@ -1,4 +1,4 @@
-import { UPDATES } from "@/data/updates";
+import { getDailyUpdates } from "@/lib/integrations";
 import { INSTAGRAM_URL } from "@/data/social";
 import UpdateCard from "./UpdateCard";
 import Reveal from "./ui/Reveal";
@@ -8,7 +8,14 @@ import InstagramIcon from "./ui/InstagramIcon";
 // touch/trackpad gestures, no carousel library needed. Also links out to
 // Instagram so people can follow Tobi's day-to-day stories in real time,
 // not just the recap here.
-export default function DailyUpdates() {
+//
+// Server Component: content comes from getDailyUpdates(), which reads
+// straight from Marius's shared Google Drive folder once configured (see
+// src/lib/drive.ts) and falls back to the static src/data/updates.ts
+// placeholders otherwise.
+export default async function DailyUpdates() {
+  const updates = await getDailyUpdates();
+
   return (
     <section id="updates" className="bg-paper px-6 py-16 md:px-10 md:py-24">
       <div className="mx-auto max-w-content">
@@ -43,7 +50,7 @@ export default function DailyUpdates() {
         </div>
 
         <div className="no-scrollbar -mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 md:-mx-10 md:px-10">
-          {UPDATES.map((update, index) => (
+          {updates.map((update, index) => (
             <UpdateCard
               key={update.id}
               update={update}
