@@ -5,6 +5,20 @@ import { LiveTrackingStatus } from "@/types";
 
 const POLL_MS = 20000;
 
+function currentDayLabel(status: LiveTrackingStatus): string {
+  if (!status.hasStarted) {
+    const days = status.daysUntilStart ?? 0;
+    if (days <= 0) return "Starts today";
+    if (days === 1) return "1 day until start";
+    return `${days} days until start`;
+  }
+  return status.currentDay ? `Day ${status.currentDay}` : "—";
+}
+
+function km(value: number | undefined): string {
+  return value !== undefined ? `${value} km` : "—";
+}
+
 // Client Component so the numbers keep moving while someone's watching the
 // page, instead of only updating on a full reload. Starts from the
 // server-rendered value for a correct first paint, then polls
@@ -33,17 +47,21 @@ export default function LiveStatsStrip({ initialStatus }: { initialStatus: LiveT
     };
   }, []);
 
+  // Today's stage progress first (what changes minute to minute while
+  // watching), then the whole-route totals and last-update timestamp.
   const stats = [
-    { label: "Distance covered", value: status.distanceCoveredKm ? `${status.distanceCoveredKm} km` : "—" },
-    { label: "Distance remaining", value: status.distanceRemainingKm ? `${status.distanceRemainingKm} km` : "—" },
-    { label: "Current day", value: status.currentDay ? `Day ${status.currentDay}` : "—" },
+    { label: "Today's distance covered", value: km(status.todayDistanceCoveredKm) },
+    { label: "Today's distance remaining", value: km(status.todayDistanceRemainingKm) },
+    { label: "Current day", value: currentDayLabel(status) },
+    { label: "Total distance covered", value: km(status.totalDistanceCoveredKm) },
+    { label: "Total distance remaining", value: km(status.totalDistanceRemainingKm) },
     { label: "Last update", value: status.lastUpdatedLabel ?? "—" },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-3">
       {stats.map((stat) => (
-        <div key={stat.label} className="bg-white px-6 py-6 text-center">
+        <div key={stat.label} className="bg-white px-4 py-6 text-center">
           <p className="text-2xl font-semibold text-graphite">{stat.value}</p>
           <p className="mt-1 text-xs uppercase tracking-wide text-fog">{stat.label}</p>
         </div>

@@ -153,6 +153,38 @@ folder.
 Until `GOOGLE_DRIVE_API_KEY` is set, the site just shows the static
 placeholder entries in `src/data/updates.ts` — nothing breaks either way.
 
+## "Current day," and today's vs. total distance
+
+The race start date lives in `src/data/schedule.ts` (`RACE_START_DATE`,
+currently 2026-08-16). Before that date, the site shows a countdown ("X days
+until start") instead of a day number or any distance stats — this stops a
+stray/test GPS point from being misread as real race progress (e.g.
+snapping to whichever day's line happens to be geometrically closest, even
+though the run hasn't started).
+
+Once the race window opens, "current day" is anchored to the calendar first,
+then refined by GPS position: the calendar tells us roughly which day it
+should be, and only that day (plus one day either side, for slack) is
+considered when matching the live point to a stage. This keeps a signal
+error or a moment of bad GPS from jumping the display to an unrelated day.
+A day only advances once the point is clearly into the next stage, not just
+barely across the line — a slight overshoot right at a boundary won't flip
+the display back and forth. This assumes Tobi runs close to one stage per
+calendar day; if he runs noticeably ahead of or behind that, see the note
+below about adding his real stage waypoints.
+
+The stats strip (`src/components/LiveStatsStrip.tsx`) shows both **today's**
+distance covered/remaining (resets each stage) and the **total** for the
+whole 312 km route, alongside the current day and last-update time.
+
+**To make day transitions exact instead of calendar-anchored:** add each
+day's real overnight-stop GPS coordinates as `endPoint: { lat, lng }` in
+`src/data/days.ts` (the `DayInfo` type already has the field — see the TODO
+comment there). The moment a day has an `endPoint`, `src/lib/route-progress.ts`
+treats being within ~150m of it as "stage complete" and zeroes out today's
+remaining distance, overriding the geometry-based estimate. No other code
+changes needed.
+
 ## The route
 
 `src/data/route.geo.json` is built from Tobi's real Komoot GPX export
@@ -239,3 +271,8 @@ password (GitHub no longer accepts account passwords for git operations).
 - [ ] Swap sponsor placeholders for real logos once partnerships are confirmed.
 - [ ] Set `GOOGLE_DRIVE_API_KEY` in Vercel (see "Daily Updates from Google
       Drive" above) so the slider pulls real uploads instead of placeholders.
+- [ ] Confirm `RACE_START_DATE` in `src/data/schedule.ts` is still correct
+      closer to race day.
+- [ ] Add each day's real overnight-stop coordinates as `endPoint` in
+      `src/data/days.ts` for exact (not calendar-estimated) stage transitions
+      (see "'Current day,' and today's vs. total distance" above).

@@ -1,7 +1,9 @@
-import { LiveTrackingStatus, RouteGeoJSON, UpdateItem } from "@/types";
+import { LiveTrackingStatus, RouteGeoJSON, TrackPoint, UpdateItem } from "@/types";
 import { supabasePublic } from "./supabase/publicClient";
-import { computeProgressFromPoint } from "./route-progress";
+import { computeDayProgress } from "./route-progress";
 import { getDriveUpdates } from "./drive";
+import { calendarDayNumber, daysUntilStart as computeDaysUntilStart } from "@/data/schedule";
+import { DAYS } from "@/data/days";
 import routeGeoJSON from "@/data/route.geo.json";
 import { UPDATES } from "@/data/updates";
 
@@ -32,6 +34,21 @@ import { UPDATES } from "@/data/updates";
  * always relays through the paired phone's Bluetooth + data connection, so
  * gaps are expected wherever phone signal drops (e.g. forest valleys).
  * ---------------------------------------------------------------------------
+ * "CURRENT DAY" — anchored to the real calendar (src/data/schedule.ts), not
+ * pure GPS proximity. Before RACE_START_DATE, there's no meaningful "day" at
+ * all (hasStarted: false, use daysUntilStart for a countdown) — this avoids
+ * a stray/test GPS point snapping to whichever day segment is geometrically
+ * closest and showing something like "Day 7" before the run has even
+ * started. Once the race window opens, the calendar-expected day both
+ * restricts which day-segments are considered for GPS matching and anchors
+ * the boundary hysteresis in route-progress.ts, so a slight overshoot past a
+ * stage's end doesn't cause the displayed day to flicker forward and back.
+ * This assumes Tobi runs close to one stage per calendar day — if he ever
+ * runs noticeably ahead of or behind that schedule, the window may need
+ * adjusting. Once real per-day start/end coordinates are added to
+ * src/data/days.ts, day transitions can be driven by actually reaching that
+ * point instead of leaning on the calendar as much.
+ * ---------------------------------------------------------------------------
  * ROUTE — src/data/route.geo.json is now built from Tobi's real Komoot GPX
  * export (see scripts/build-route-from-gpx.mjs), so the line itself is the
  * actual trail, not a guess. The one thing that's still approximate: the
@@ -44,12 +61,14 @@ import { UPDATES } from "@/data/updates";
  * ---------------------------------------------------------------------------
  */
 
-export async function getLiveTrackingStatus(): Promise<LiveTrackingStatus> {
-  if (!supabasePublic) {
-    // NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY aren't set
-    // yet (e.g. local dev before .env.local is configured). Fail soft.
-    return { isLive: false, lastUpdatedLabel: "Tracking not configured yet" };
-  }
+interface LatestPoint {
+  point: TrackPoint;
+  source: "garmin" | "traccar";
+  minutesAgo: number;
+}
+
+async function fetchLatestPoint(): Promise<LatestPoint | null> {
+  if (!supabasePublic) return null;
 
   const { data, error } = await supabasePublic
     .from("track_points")
@@ -58,30 +77,81 @@ export async function getLiveTrackingStatus(): Promise<LiveTrackingStatus> {
     .limit(1)
     .maybeSingle();
 
-  if (error || !data) {
-    return { isLive: false, lastUpdatedLabel: "Not started yet" };
-  }
+  if (error || !data) return null;
 
-  const point = {
+  const point: TrackPoint = {
     lat: data.lat as number,
     lng: data.lng as number,
     elevationM: (data.elevation_m as number | null) ?? undefined,
     speedKmh: (data.speed_kmh as number | null) ?? undefined,
     timestamp: data.recorded_at as string,
   };
-
-  const progress = computeProgressFromPoint(point, routeGeoJSON as unknown as RouteGeoJSON);
   const minutesAgo = Math.round((Date.now() - new Date(point.timestamp).getTime()) / 60000);
 
+  return { point, source: data.source as "garmin" | "traccar", minutesAgo };
+}
+
+function updateLabel(minutesAgo: number | undefined): string {
+  if (minutesAgo === undefined) return "Not started yet";
+  if (minutesAgo < 1) return "Just now";
+  return `${minutesAgo} min ago`;
+}
+
+export async function getLiveTrackingStatus(): Promise<LiveTrackingStatus> {
+  const expectedDay = calendarDayNumber();
+
+  if (expectedDay === null) {
+    // Pre-race: still surface a genuinely fresh signal if one exists (handy
+    // while testing the tracking pipeline before race day), but never turn
+    // it into a day number or distance stat — those only mean something
+    // once the real race window has opened.
+    const latest = await fetchLatestPoint();
+    return {
+      isLive: latest ? latest.minutesAgo < 15 : false,
+      hasStarted: false,
+      daysUntilStart: computeDaysUntilStart(),
+      lastPoint: latest?.point,
+      lastUpdatedLabel: updateLabel(latest?.minutesAgo),
+      lastUpdatedIso: latest?.point.timestamp,
+      source: latest?.source,
+    };
+  }
+
+  const latest = await fetchLatestPoint();
+
+  if (!latest) {
+    // Race window is open but no point has ever landed (Supabase not
+    // configured, or genuinely no pings yet) — still show the
+    // calendar-expected day rather than nothing.
+    return {
+      isLive: false,
+      hasStarted: true,
+      currentDay: expectedDay,
+      lastUpdatedLabel: "Not started yet",
+    };
+  }
+
+  const allowedDays = [expectedDay - 1, expectedDay, expectedDay + 1].filter(
+    (d) => d >= 1 && d <= 7
+  );
+
+  const progress = computeDayProgress(latest.point, routeGeoJSON as unknown as RouteGeoJSON, DAYS, {
+    allowedDays,
+    anchorDay: expectedDay,
+  });
+
   return {
-    isLive: minutesAgo < 15,
+    isLive: latest.minutesAgo < 15,
+    hasStarted: true,
     currentDay: progress.currentDay,
-    lastPoint: point,
-    distanceCoveredKm: progress.distanceCoveredKm,
-    distanceRemainingKm: progress.distanceRemainingKm,
-    lastUpdatedLabel: minutesAgo < 1 ? "Just now" : `${minutesAgo} min ago`,
-    lastUpdatedIso: point.timestamp,
-    source: data.source as "garmin" | "traccar",
+    lastPoint: latest.point,
+    totalDistanceCoveredKm: progress.totalDistanceCoveredKm,
+    totalDistanceRemainingKm: progress.totalDistanceRemainingKm,
+    todayDistanceCoveredKm: progress.todayDistanceCoveredKm,
+    todayDistanceRemainingKm: progress.todayDistanceRemainingKm,
+    lastUpdatedLabel: updateLabel(latest.minutesAgo),
+    lastUpdatedIso: latest.point.timestamp,
+    source: latest.source,
   };
 }
 

@@ -17,6 +17,12 @@ import { DayInfo } from "@/types";
 //
 // All days start as "upcoming" — statuses will flip to "in-progress" /
 // "completed" automatically once live tracking data is wired in.
+//
+// TODO: once Tobi's real overnight-stop coordinates are confirmed, add them
+// per day as `endPoint: { lat, lng }` (and optionally `startPoint`) — see
+// the DayInfo type in src/types/index.ts. src/lib/route-progress.ts already
+// checks for endPoint and will use it as a precise "stage complete" signal
+// the moment it's populated; no other code changes needed.
 export const DAYS: DayInfo[] = [
   {
     day: 1,

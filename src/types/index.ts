@@ -15,6 +15,14 @@ export interface DayInfo {
   elevationGainM: number;
   status: DayStatus;
   date?: string; // ISO date string, optional until the schedule is locked
+  // Real GPS coordinates of this stage's overnight stops, once Tobi's exact
+  // start/end points are confirmed (see src/data/days.ts). Not yet
+  // populated — until then, day boundaries are approximated from the
+  // equal-distance route split in src/data/route.geo.json. Once these are
+  // filled in, src/lib/route-progress.ts uses endPoint to know precisely
+  // when a stage is actually finished, instead of just estimating.
+  startPoint?: { lat: number; lng: number };
+  endPoint?: { lat: number; lng: number };
 }
 
 export type UpdateMediaType = "photo" | "video";
@@ -63,10 +71,20 @@ export interface TrackPoint {
 
 export interface LiveTrackingStatus {
   isLive: boolean;
+  // False before the real race window (src/data/schedule.ts) has opened.
+  // While false, currentDay/distance fields are meaningless and should be
+  // replaced in the UI by a countdown using daysUntilStart instead.
+  hasStarted: boolean;
+  daysUntilStart?: number; // only meaningful while hasStarted is false
   currentDay?: number;
   lastPoint?: TrackPoint;
-  distanceCoveredKm?: number;
-  distanceRemainingKm?: number;
+  // Whole-route totals.
+  totalDistanceCoveredKm?: number;
+  totalDistanceRemainingKm?: number;
+  // Just today's stage (currentDay) — resets each day, hits 0 remaining
+  // when Tobi reaches that day's real end point (once configured).
+  todayDistanceCoveredKm?: number;
+  todayDistanceRemainingKm?: number;
   lastUpdatedLabel?: string; // human-readable fallback for first paint, e.g. "2 min ago"
   lastUpdatedIso?: string; // raw timestamp so client components can keep the label fresh
   source?: "garmin" | "traccar"; // whichever feed produced the most recent point
