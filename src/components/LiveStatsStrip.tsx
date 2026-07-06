@@ -49,22 +49,27 @@ export default function LiveStatsStrip({ initialStatus }: { initialStatus: LiveT
 
   // Today's stage progress first (what changes minute to minute while
   // watching), then the whole-route totals and last-update timestamp.
+  // Short labels keep each cell to one line on narrow phones; the full
+  // label takes over from sm up where there's room for it.
   const stats = [
-    { label: "Today's distance covered", value: km(status.todayDistanceCoveredKm) },
-    { label: "Today's distance remaining", value: km(status.todayDistanceRemainingKm) },
-    { label: "Current day", value: currentDayLabel(status) },
-    { label: "Total distance covered", value: km(status.totalDistanceCoveredKm) },
-    { label: "Total distance remaining", value: km(status.totalDistanceRemainingKm) },
-    { label: "Last update", value: status.lastUpdatedLabel ?? "—" },
+    { label: "Today's distance covered", shortLabel: "Today covered", value: km(status.todayDistanceCoveredKm) },
+    { label: "Today's distance remaining", shortLabel: "Today left", value: km(status.todayDistanceRemainingKm) },
+    { label: "Current day", shortLabel: "Day", value: currentDayLabel(status) },
+    { label: "Total distance covered", shortLabel: "Total covered", value: km(status.totalDistanceCoveredKm) },
+    { label: "Total distance remaining", shortLabel: "Total left", value: km(status.totalDistanceRemainingKm) },
+    { label: "Last update", shortLabel: "Updated", value: status.lastUpdatedLabel ?? "—" },
   ];
 
   return (
     <div className="grid grid-cols-3 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-6">
       {stats.map((stat) => (
-        <div key={stat.label} className="bg-white px-2 py-3 text-center md:px-3 md:py-4">
-          <p className="text-base font-semibold text-graphite md:text-lg">{stat.value}</p>
-          <p className="mt-0.5 text-[9px] uppercase tracking-wide text-fog md:text-[10px]">
-            {stat.label}
+        <div key={stat.label} className="bg-white px-1.5 py-2 text-center md:px-3 md:py-4">
+          <p className="text-[11px] font-semibold leading-tight text-graphite md:text-lg">
+            {stat.value}
+          </p>
+          <p className="mt-0.5 truncate text-[8px] uppercase tracking-wide text-fog md:text-[10px]">
+            <span className="sm:hidden">{stat.shortLabel}</span>
+            <span className="hidden sm:inline">{stat.label}</span>
           </p>
         </div>
       ))}

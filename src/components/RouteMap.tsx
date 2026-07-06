@@ -224,24 +224,24 @@ export default function RouteMap({ routeGeoJSON, initialLiveStatus }: RouteMapPr
   const hasLivePoint = Boolean(liveStatus.lastPoint);
 
   return (
-    <div className="relative aspect-[16/10] w-full overflow-hidden md:aspect-[21/9]">
+    <div className="relative aspect-square w-full overflow-hidden sm:aspect-[16/10] md:aspect-[21/9]">
       {/* Natural light "positron" basemap — no color filter, matches the
           site's light theme directly instead of faking a dark map. */}
       <div ref={containerRef} className="h-full w-full" />
 
       {/* Quick zoom presets */}
-      <div className="absolute left-4 top-4 flex gap-1.5 rounded-full bg-white/80 p-1 shadow-glass-light backdrop-blur-md">
+      <div className="absolute left-2 top-2 flex gap-0.5 rounded-full bg-white/80 p-1 shadow-glass-light backdrop-blur-md sm:left-4 sm:top-4 sm:gap-1.5">
         <button
           type="button"
           onClick={handleFullRoute}
-          className="rounded-full px-3 py-1.5 text-xs font-medium text-graphite transition-colors hover:bg-black/[0.06]"
+          className="rounded-full px-2 py-1 text-[11px] font-medium text-graphite transition-colors hover:bg-black/[0.06] sm:px-3 sm:py-1.5 sm:text-xs"
         >
           Full Route
         </button>
         <button
           type="button"
           onClick={handleStage}
-          className="rounded-full px-3 py-1.5 text-xs font-medium text-graphite transition-colors hover:bg-black/[0.06]"
+          className="rounded-full px-2 py-1 text-[11px] font-medium text-graphite transition-colors hover:bg-black/[0.06] sm:px-3 sm:py-1.5 sm:text-xs"
         >
           This Stage
         </button>
@@ -249,14 +249,15 @@ export default function RouteMap({ routeGeoJSON, initialLiveStatus }: RouteMapPr
           type="button"
           onClick={handleTobi}
           disabled={!hasLivePoint}
-          className="rounded-full px-3 py-1.5 text-xs font-medium text-graphite transition-colors hover:bg-black/[0.06] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+          className="rounded-full px-2 py-1 text-[11px] font-medium text-graphite transition-colors hover:bg-black/[0.06] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent sm:px-3 sm:py-1.5 sm:text-xs"
         >
           Tobi
         </button>
       </div>
 
-      {/* Status badge */}
-      <div className="absolute right-4 top-4 rounded-full bg-white/80 px-4 py-1.5 text-xs font-medium text-graphite shadow-glass-light backdrop-blur-md">
+      {/* Status badge — bottom-right on narrow phones (the top-left zoom
+          buttons already crowd the top edge there), top-right from sm up. */}
+      <div className="absolute bottom-2 right-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium text-graphite shadow-glass-light backdrop-blur-md sm:bottom-auto sm:right-4 sm:top-4 sm:px-4 sm:py-1.5 sm:text-xs">
         {hasLivePoint && !isStale
           ? "Live now"
           : relativeTimeLabel(liveStatus.lastUpdatedIso, now)}
