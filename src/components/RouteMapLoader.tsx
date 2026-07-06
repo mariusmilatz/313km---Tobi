@@ -10,7 +10,7 @@ import { LiveTrackingStatus, RouteGeoJSON } from "@/types";
 const RouteMap = dynamic(() => import("./RouteMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex aspect-[9/16] w-full animate-pulse items-center justify-center bg-terrain-light text-sm text-fog sm:aspect-[16/10] md:aspect-[21/9]">
+    <div className="flex aspect-[9/15.2] w-full animate-pulse items-center justify-center bg-terrain-light text-sm text-fog sm:aspect-[16/10] md:aspect-[21/9]">
       Loading map…
     </div>
   ),

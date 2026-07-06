@@ -224,7 +224,7 @@ export default function RouteMap({ routeGeoJSON, initialLiveStatus }: RouteMapPr
   const hasLivePoint = Boolean(liveStatus.lastPoint);
 
   return (
-    <div className="relative aspect-[9/16] w-full overflow-hidden sm:aspect-[16/10] md:aspect-[21/9]">
+    <div className="relative aspect-[9/15.2] w-full overflow-hidden sm:aspect-[16/10] md:aspect-[21/9]">
       {/* Natural light "positron" basemap — no color filter, matches the
           site's light theme directly instead of faking a dark map. */}
       <div ref={containerRef} className="h-full w-full" />
