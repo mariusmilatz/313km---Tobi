@@ -24,7 +24,7 @@ export default async function LiveTracking() {
           {routeGeoJSON ? (
             <RouteMapLoader routeGeoJSON={routeGeoJSON} initialLiveStatus={status} />
           ) : (
-            <div className="flex aspect-square w-full items-center justify-center bg-terrain-light text-sm text-fog sm:aspect-[16/10] md:aspect-[21/9]">
+            <div className="flex aspect-[9/16] w-full items-center justify-center bg-terrain-light text-sm text-fog sm:aspect-[16/10] md:aspect-[21/9]">
               Route data not available yet.
             </div>
           )}

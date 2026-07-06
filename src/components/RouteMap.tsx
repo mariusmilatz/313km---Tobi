@@ -224,7 +224,7 @@ export default function RouteMap({ routeGeoJSON, initialLiveStatus }: RouteMapPr
   const hasLivePoint = Boolean(liveStatus.lastPoint);
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden sm:aspect-[16/10] md:aspect-[21/9]">
+    <div className="relative aspect-[9/16] w-full overflow-hidden sm:aspect-[16/10] md:aspect-[21/9]">
       {/* Natural light "positron" basemap — no color filter, matches the
           site's light theme directly instead of faking a dark map. */}
       <div ref={containerRef} className="h-full w-full" />
@@ -255,9 +255,10 @@ export default function RouteMap({ routeGeoJSON, initialLiveStatus }: RouteMapPr
         </button>
       </div>
 
-      {/* Status badge — bottom-right on narrow phones (the top-left zoom
-          buttons already crowd the top edge there), top-right from sm up. */}
-      <div className="absolute bottom-2 right-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium text-graphite shadow-glass-light backdrop-blur-md sm:bottom-auto sm:right-4 sm:top-4 sm:px-4 sm:py-1.5 sm:text-xs">
+      {/* Status badge — top-right corner at every size. Sits above the
+          map's own bottom-right attribution control, which is why this
+          isn't placed at the bottom on mobile. */}
+      <div className="absolute right-2 top-2 rounded-full bg-white/80 px-3 py-1 text-[11px] font-medium text-graphite shadow-glass-light backdrop-blur-md sm:right-4 sm:top-4 sm:px-4 sm:py-1.5 sm:text-xs">
         {hasLivePoint && !isStale
           ? "Live now"
           : relativeTimeLabel(liveStatus.lastUpdatedIso, now)}
