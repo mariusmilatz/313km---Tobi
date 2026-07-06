@@ -2,6 +2,7 @@ import { getLiveTrackingStatus, getRouteGeoJSON } from "@/lib/integrations";
 import SectionHeading from "./ui/SectionHeading";
 import GlassCard from "./ui/GlassCard";
 import RouteMapLoader from "./RouteMapLoader";
+import LiveStatsStrip from "./LiveStatsStrip";
 
 // Server Component: fetches the initial live status + route geometry once on
 // the server (so the first paint already has real data), then hands both to
@@ -28,20 +29,10 @@ export default async function LiveTracking() {
             </div>
           )}
 
-          {/* Stats strip */}
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-4">
-            {[
-              { label: "Distance covered", value: status.distanceCoveredKm ? `${status.distanceCoveredKm} km` : "—" },
-              { label: "Distance remaining", value: status.distanceRemainingKm ? `${status.distanceRemainingKm} km` : "—" },
-              { label: "Current day", value: status.currentDay ? `Day ${status.currentDay}` : "—" },
-              { label: "Last update", value: status.lastUpdatedLabel ?? "—" },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-white px-6 py-6 text-center">
-                <p className="text-2xl font-semibold text-graphite">{stat.value}</p>
-                <p className="mt-1 text-xs uppercase tracking-wide text-fog">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+          {/* Stats strip — client component, polls /api/live-status every
+              20s so the numbers actually move while someone's watching,
+              instead of only updating on a page reload. */}
+          <LiveStatsStrip initialStatus={status} />
         </GlassCard>
 
         <p className="mx-auto mt-6 max-w-xl text-center text-sm text-fog">
