@@ -15,7 +15,7 @@ export default function RouteOverview() {
   ];
 
   return (
-    <section id="route" className="bg-paper px-6 py-28 md:px-10 md:py-36">
+    <section id="route" className="bg-paper px-6 py-16 md:px-10 md:py-24">
       <div className="mx-auto max-w-content">
         <SectionHeading
           eyebrow="The Route"

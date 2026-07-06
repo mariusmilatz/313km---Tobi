@@ -2,7 +2,7 @@ import Reveal from "./ui/Reveal";
 
 export default function Story() {
   return (
-    <section id="story" className="relative bg-paper px-6 py-28 md:px-10 md:py-40">
+    <section id="story" className="relative bg-paper px-6 py-16 md:px-10 md:py-28">
       <div
         className="pointer-events-none absolute inset-0 bg-hero-glow opacity-70"
         aria-hidden

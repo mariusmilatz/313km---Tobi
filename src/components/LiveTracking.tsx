@@ -10,7 +10,7 @@ export default async function LiveTracking() {
   const [status, routeGeoJSON] = await Promise.all([getLiveTrackingStatus(), getRouteGeoJSON()]);
 
   return (
-    <section id="live" className="relative bg-paper px-6 py-28 md:px-10 md:py-36">
+    <section id="live" className="relative bg-paper px-6 py-16 md:px-10 md:py-24">
       <div className="mx-auto max-w-content">
         <SectionHeading
           eyebrow="Live Tracking"

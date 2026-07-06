@@ -2,7 +2,7 @@ import Button from "./ui/Button";
 
 export default function Hero() {
   return (
-    <section id="top" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-paper">
+    <section id="top" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-paper">
       {/*
         TODO: replace this gradient placeholder with a real cinematic background —
         either a muted looping <video> of the Eifelsteig trail, or a full-bleed

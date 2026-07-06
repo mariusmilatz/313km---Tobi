@@ -24,7 +24,7 @@ export default async function DaysSection() {
   });
 
   return (
-    <section id="days" className="bg-paper px-6 pb-28 md:px-10 md:pb-36">
+    <section id="days" className="bg-paper px-6 pb-16 md:px-10 md:pb-24">
       <div className="mx-auto max-w-content">
         <SectionHeading
           eyebrow="Seven Days"
