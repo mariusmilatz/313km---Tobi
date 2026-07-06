@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { INSTAGRAM_URL } from "@/data/social";
+import InstagramIcon from "./ui/InstagramIcon";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -17,7 +19,17 @@ export default function Footer() {
           <Link href="#top" className="transition-colors hover:text-graphite">
             Back to top
           </Link>
-          {/* TODO: swap for real social links (Instagram, YouTube, etc.) */}
+          {/* TODO: point at Tobi's / Round Circle Films' real Instagram
+              handle once confirmed — see src/data/social.ts */}
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-graphite"
+          >
+            <InstagramIcon className="h-4 w-4" />
+            Instagram
+          </a>
           <Link href="mailto:roundcirclefilmsproduction@gmail.com" className="transition-colors hover:text-graphite">
             Contact
           </Link>

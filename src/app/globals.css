@@ -27,3 +27,13 @@ body {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 999px;
 }
+
+/* used by horizontal snap-scroll sliders (e.g. Daily Updates) so the native
+   scrollbar doesn't show up underneath the cards */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

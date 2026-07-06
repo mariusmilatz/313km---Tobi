@@ -8,10 +8,18 @@ function formatTimestamp(iso: string) {
   });
 }
 
-export default function UpdateCard({ update, index }: { update: UpdateItem; index: number }) {
+export default function UpdateCard({
+  update,
+  index,
+  className = "",
+}: {
+  update: UpdateItem;
+  index: number;
+  className?: string;
+}) {
   return (
-    <Reveal delay={index * 60}>
-      <div className="group overflow-hidden rounded-4xl border border-black/5 bg-white shadow-glass-light">
+    <Reveal delay={index * 60} className={className}>
+      <div className="group flex h-full flex-col overflow-hidden rounded-4xl border border-black/5 bg-white shadow-glass-light">
         {/* TODO: replace with an actual <Image>/<video> once update.mediaUrl
             is populated from real media storage. */}
         <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-graphite/10 via-graphite/[0.04] to-transparent">
@@ -25,7 +33,7 @@ export default function UpdateCard({ update, index }: { update: UpdateItem; inde
           </span>
         </div>
 
-        <div className="p-5">
+        <div className="flex flex-1 flex-col p-5">
           <p className="text-sm leading-relaxed text-graphite">{update.caption}</p>
           <p className="mt-2 text-xs uppercase tracking-wide text-fog">
             {formatTimestamp(update.timestamp)}
