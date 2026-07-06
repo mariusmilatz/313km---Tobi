@@ -239,4 +239,3 @@ password (GitHub no longer accepts account passwords for git operations).
 - [ ] Swap sponsor placeholders for real logos once partnerships are confirmed.
 - [ ] Set `GOOGLE_DRIVE_API_KEY` in Vercel (see "Daily Updates from Google
       Drive" above) so the slider pulls real uploads instead of placeholders.
-- [ ] Point `src/data/social.ts` at the real Instagram handle.

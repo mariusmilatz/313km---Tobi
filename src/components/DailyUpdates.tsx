@@ -35,8 +35,6 @@ export default async function DailyUpdates() {
           </Reveal>
 
           <Reveal delay={100}>
-            {/* TODO: point this at Tobi's / Round Circle Films' real
-                Instagram handle once confirmed — see src/data/social.ts */}
             <a
               href={INSTAGRAM_URL}
               target="_blank"

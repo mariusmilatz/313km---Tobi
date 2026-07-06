@@ -19,8 +19,6 @@ export default function Footer() {
           <Link href="#top" className="transition-colors hover:text-graphite">
             Back to top
           </Link>
-          {/* TODO: point at Tobi's / Round Circle Films' real Instagram
-              handle once confirmed — see src/data/social.ts */}
           <a
             href={INSTAGRAM_URL}
             target="_blank"
