@@ -59,11 +59,13 @@ export default function LiveStatsStrip({ initialStatus }: { initialStatus: LiveT
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-3">
+    <div className="grid grid-cols-3 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-6">
       {stats.map((stat) => (
-        <div key={stat.label} className="bg-white px-4 py-6 text-center">
-          <p className="text-2xl font-semibold text-graphite">{stat.value}</p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-fog">{stat.label}</p>
+        <div key={stat.label} className="bg-white px-2 py-3 text-center md:px-3 md:py-4">
+          <p className="text-base font-semibold text-graphite md:text-lg">{stat.value}</p>
+          <p className="mt-0.5 text-[9px] uppercase tracking-wide text-fog md:text-[10px]">
+            {stat.label}
+          </p>
         </div>
       ))}
     </div>
