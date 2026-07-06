@@ -1,7 +1,7 @@
 import { LiveTrackingStatus, RouteGeoJSON } from "@/types";
 import { supabasePublic } from "./supabase/publicClient";
 import { computeProgressFromPoint } from "./route-progress";
-import placeholderRoute from "@/data/route.geo.json";
+import routeGeoJSON from "@/data/route.geo.json";
 
 /**
  * INTEGRATIONS LAYER.
@@ -30,15 +30,15 @@ import placeholderRoute from "@/data/route.geo.json";
  * always relays through the paired phone's Bluetooth + data connection, so
  * gaps are expected wherever phone signal drops (e.g. forest valleys).
  * ---------------------------------------------------------------------------
- * ROUTE — currently a placeholder line (see src/data/route.geo.json and
- * scripts/generate-placeholder-route.mjs), built from approximate town
- * coordinates, not Tobi's real trail.
- *
- * TODO: once the real Komoot GPX export is available, convert it to this
- * same FeatureCollection shape (one LineString per day, tagged with a `day`
- * property — see the RouteGeoJSON type) and replace route.geo.json. Nothing
- * else needs to change; the map, stage-zoom buttons, and progress math all
- * key off that `day` property, not off any particular geometry.
+ * ROUTE — src/data/route.geo.json is now built from Tobi's real Komoot GPX
+ * export (see scripts/build-route-from-gpx.mjs), so the line itself is the
+ * actual trail, not a guess. The one thing that's still approximate: the
+ * 7-day split is an EQUAL-DISTANCE split (~44.5 km/day), not Tobi's confirmed
+ * overnight stops — we don't have an authoritative list of which towns he's
+ * actually sleeping in each night. TODO: once that's confirmed, adjust the
+ * cut points in the build script and re-run it; nothing else needs to
+ * change — the map, stage-zoom buttons, and progress math all key off the
+ * `day` property on each feature, not off any particular geometry.
  * ---------------------------------------------------------------------------
  */
 
@@ -68,7 +68,7 @@ export async function getLiveTrackingStatus(): Promise<LiveTrackingStatus> {
     timestamp: data.recorded_at as string,
   };
 
-  const progress = computeProgressFromPoint(point, placeholderRoute as unknown as RouteGeoJSON);
+  const progress = computeProgressFromPoint(point, routeGeoJSON as unknown as RouteGeoJSON);
   const minutesAgo = Math.round((Date.now() - new Date(point.timestamp).getTime()) / 60000);
 
   return {
@@ -86,5 +86,5 @@ export async function getLiveTrackingStatus(): Promise<LiveTrackingStatus> {
 export async function getRouteGeoJSON(): Promise<RouteGeoJSON | null> {
   // TODO: swap this static import for the real Komoot-derived route once
   // it exists (see notes above).
-  return placeholderRoute as unknown as RouteGeoJSON;
+  return routeGeoJSON as unknown as RouteGeoJSON;
 }

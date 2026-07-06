@@ -45,8 +45,8 @@ export default async function LiveTracking() {
         </GlassCard>
 
         <p className="mx-auto mt-6 max-w-xl text-center text-sm text-fog">
-          The route shown is an approximate placeholder until Tobi&apos;s real Komoot GPX
-          export is added. Live tracking goes active once he starts running.
+          The route shown is Tobi&apos;s real planned trail. Live tracking goes active
+          once he starts running.
         </p>
       </div>
     </section>

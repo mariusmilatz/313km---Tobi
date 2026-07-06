@@ -1,11 +1,18 @@
+// SUPERSEDED — kept only for reference/history.
+//
+// This was the original placeholder route generator, used before Tobi's
+// real Komoot GPX export was available. src/data/route.geo.json is now
+// built from his actual GPX via scripts/build-route-from-gpx.mjs instead —
+// use that script, not this one.
+//
+// (Original doc comment below, for context on how the old placeholder worked.)
+//
 // One-off generator for an APPROXIMATE placeholder route line, used only
 // until the real Komoot GPX export for the Eifelsteig is available.
 // Produces a GeoJSON FeatureCollection with one LineString per day, each
 // carrying a `day` property so the map can filter/zoom to a single stage.
 //
 // Waypoint coordinates are approximate town locations, not the real trail.
-// Replace this whole file's output once scripts/gpx-to-route.mjs (TODO,
-// see README) can parse Tobi's real GPX export.
 
 import { writeFileSync } from "node:fs";
 
