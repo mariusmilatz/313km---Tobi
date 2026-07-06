@@ -30,6 +30,9 @@ const config: Config = {
         "accent-gradient": "linear-gradient(120deg, #5EA8FF 0%, #7FDBB6 55%, #FFD98E 100%)",
         "hero-glow": "radial-gradient(ellipse 80% 60% at 50% 20%, rgba(94,168,255,0.18), transparent 60%)",
         "terrain": "linear-gradient(160deg, #0c1614 0%, #10201d 35%, #142a26 60%, #0c1614 100%)",
+        // Light, airy stand-in for "terrain" — soft sage-to-cream wash used
+        // behind the hero and any loading skeletons now that the site is light.
+        "terrain-light": "linear-gradient(160deg, #eef3f1 0%, #f7f7f5 45%, #fdf7ec 100%)",
       },
       boxShadow: {
         glass: "0 8px 40px rgba(0,0,0,0.35)",

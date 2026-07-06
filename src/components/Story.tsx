@@ -2,9 +2,9 @@ import Reveal from "./ui/Reveal";
 
 export default function Story() {
   return (
-    <section id="story" className="relative bg-ink px-6 py-28 md:px-10 md:py-40">
+    <section id="story" className="relative bg-paper px-6 py-28 md:px-10 md:py-40">
       <div
-        className="pointer-events-none absolute inset-0 bg-hero-glow opacity-60"
+        className="pointer-events-none absolute inset-0 bg-hero-glow opacity-70"
         aria-hidden
       />
       <div className="relative mx-auto max-w-3xl text-center">
@@ -15,7 +15,7 @@ export default function Story() {
         </Reveal>
 
         <Reveal delay={100}>
-          <p className="mt-8 text-3xl font-medium leading-snug tracking-tight text-mist md:text-4xl">
+          <p className="mt-8 text-3xl font-medium leading-snug tracking-tight text-graphite md:text-4xl">
             This isn&apos;t about a finish line. It&apos;s about what a body and a mind
             find out about each other over seven days, alone on a trail.
           </p>

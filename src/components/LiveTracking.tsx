@@ -10,34 +10,34 @@ export default async function LiveTracking() {
   const [status, routeGeoJSON] = await Promise.all([getLiveTrackingStatus(), getRouteGeoJSON()]);
 
   return (
-    <section id="live" className="relative bg-ink px-6 py-28 md:px-10 md:py-36">
+    <section id="live" className="relative bg-paper px-6 py-28 md:px-10 md:py-36">
       <div className="mx-auto max-w-content">
         <SectionHeading
           eyebrow="Live Tracking"
           title="Follow Tobi in real time"
           subtitle="One map: the full route, each day's stage, and Tobi's live position, all in the same view. Use the buttons for quick jumps, or scroll/pinch to zoom freely."
-          tone="dark"
+          tone="light"
         />
 
-        <GlassCard tone="dark" className="relative overflow-hidden">
+        <GlassCard tone="light" className="relative overflow-hidden">
           {routeGeoJSON ? (
             <RouteMapLoader routeGeoJSON={routeGeoJSON} initialLiveStatus={status} />
           ) : (
-            <div className="flex aspect-[16/10] w-full items-center justify-center bg-terrain text-sm text-fog md:aspect-[21/9]">
+            <div className="flex aspect-[16/10] w-full items-center justify-center bg-terrain-light text-sm text-fog md:aspect-[21/9]">
               Route data not available yet.
             </div>
           )}
 
           {/* Stats strip */}
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-white/10 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-black/[0.06] md:grid-cols-4">
             {[
               { label: "Distance covered", value: status.distanceCoveredKm ? `${status.distanceCoveredKm} km` : "—" },
               { label: "Distance remaining", value: status.distanceRemainingKm ? `${status.distanceRemainingKm} km` : "—" },
               { label: "Current day", value: status.currentDay ? `Day ${status.currentDay}` : "—" },
               { label: "Last update", value: status.lastUpdatedLabel ?? "—" },
             ].map((stat) => (
-              <div key={stat.label} className="bg-ink-soft px-6 py-6 text-center">
-                <p className="text-2xl font-semibold text-mist">{stat.value}</p>
+              <div key={stat.label} className="bg-white px-6 py-6 text-center">
+                <p className="text-2xl font-semibold text-graphite">{stat.value}</p>
                 <p className="mt-1 text-xs uppercase tracking-wide text-fog">{stat.label}</p>
               </div>
             ))}
