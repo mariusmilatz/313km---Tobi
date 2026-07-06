@@ -1,6 +1,6 @@
 import { DAYS } from "@/data/days";
 import { getLiveTrackingStatus } from "@/lib/integrations";
-import { DayInfo } from "@/types";
+import { DayInfo, DayStatus } from "@/types";
 import DayCard from "./DayCard";
 import SectionHeading from "./ui/SectionHeading";
 
@@ -15,11 +15,12 @@ export default async function DaysSection() {
 
   const days: DayInfo[] = DAYS.map((day): DayInfo => {
     if (!status.currentDay) return day;
-    if (day.day < status.currentDay) return { ...day, status: "completed" as const };
+    if (day.day < status.currentDay) return { ...day, status: "completed" as DayStatus };
     if (day.day === status.currentDay) {
-      return { ...day, status: (status.isLive ? "in-progress" : "completed") as const };
+      const nextStatus: DayStatus = status.isLive ? "in-progress" : "completed";
+      return { ...day, status: nextStatus };
     }
-    return { ...day, status: "upcoming" as const };
+    return { ...day, status: "upcoming" as DayStatus };
   });
 
   return (
