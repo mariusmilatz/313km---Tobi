@@ -1,13 +1,13 @@
-import { getLiveTrackingStatus } from "@/lib/integrations";
+import { getLiveTrackingStatus, getRouteGeoJSON } from "@/lib/integrations";
 import SectionHeading from "./ui/SectionHeading";
 import GlassCard from "./ui/GlassCard";
-import PulseDot from "./ui/PulseDot";
+import RouteMapLoader from "./RouteMapLoader";
 
-// Server Component: awaits getLiveTrackingStatus(), which today returns
-// static mock data (see src/lib/integrations.ts) but will later be swapped
-// for a real Garmin LiveTrack read or a Supabase query — no props change.
+// Server Component: fetches the initial live status + route geometry once on
+// the server (so the first paint already has real data), then hands both to
+// the client-side map, which takes over polling Supabase for fresh points.
 export default async function LiveTracking() {
-  const status = await getLiveTrackingStatus();
+  const [status, routeGeoJSON] = await Promise.all([getLiveTrackingStatus(), getRouteGeoJSON()]);
 
   return (
     <section id="live" className="relative bg-ink px-6 py-28 md:px-10 md:py-36">
@@ -15,43 +15,18 @@ export default async function LiveTracking() {
         <SectionHeading
           eyebrow="Live Tracking"
           title="Follow Tobi in real time"
-          subtitle="Once Tobi sets off, his position will update here — overlaid on the route below, not on a third-party map."
+          subtitle="One map: the full route, each day's stage, and Tobi's live position, all in the same view. Use the buttons for quick jumps, or scroll/pinch to zoom freely."
           tone="dark"
         />
 
         <GlassCard tone="dark" className="relative overflow-hidden">
-          {/* Map placeholder */}
-          <div className="relative aspect-[16/10] w-full overflow-hidden md:aspect-[21/9]">
-            <div className="absolute inset-0 bg-terrain" aria-hidden />
-            <svg
-              className="absolute inset-0 h-full w-full opacity-[0.12]"
-              aria-hidden
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <pattern id="live-contours" width="140" height="140" patternUnits="userSpaceOnUse">
-                  <path
-                    d="M0,70 C35,40 105,100 140,70"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="1"
-                  />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#live-contours)" />
-            </svg>
-
-            {/* TODO: swap this placeholder marker for a real map (MapLibre/Mapbox GL)
-                rendering the GPX-derived route line plus a live position marker
-                sourced from getLiveTrackingStatus(). */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <PulseDot active={status.isLive} className="scale-[2.4]" />
+          {routeGeoJSON ? (
+            <RouteMapLoader routeGeoJSON={routeGeoJSON} initialLiveStatus={status} />
+          ) : (
+            <div className="flex aspect-[16/10] w-full items-center justify-center bg-terrain text-sm text-fog md:aspect-[21/9]">
+              Route data not available yet.
             </div>
-
-            <div className="absolute right-6 top-6 rounded-full bg-black/30 px-4 py-1.5 text-xs font-medium text-mist backdrop-blur-md">
-              {status.isLive ? "Live now" : "Not started yet"}
-            </div>
-          </div>
+          )}
 
           {/* Stats strip */}
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-b-4xl bg-white/10 md:grid-cols-4">
@@ -70,7 +45,8 @@ export default async function LiveTracking() {
         </GlassCard>
 
         <p className="mx-auto mt-6 max-w-xl text-center text-sm text-fog">
-          Live tracking will go active once Tobi starts running. Check back on race day.
+          The route shown is an approximate placeholder until Tobi&apos;s real Komoot GPX
+          export is added. Live tracking goes active once he starts running.
         </p>
       </div>
     </section>

@@ -1,67 +1,90 @@
 import { LiveTrackingStatus, RouteGeoJSON } from "@/types";
+import { supabasePublic } from "./supabase/publicClient";
+import { computeProgressFromPoint } from "./route-progress";
+import placeholderRoute from "@/data/route.geo.json";
 
 /**
- * INTEGRATIONS LAYER — placeholder implementations only.
+ * INTEGRATIONS LAYER.
  *
- * Nothing here talks to Garmin, Komoot, Supabase, or Mapbox yet. Every
- * function below returns static/mock data so the UI has something real to
- * render, but is shaped exactly like the eventual live data so wiring up a
- * real backend later is a drop-in replacement — no component changes needed.
+ * This is the one file that talks to the outside world. Everything else
+ * (components, data files) is written against the types in src/types, so
+ * swapping a data source here never requires touching the UI.
  *
  * ---------------------------------------------------------------------------
- * LIVE TRACKING — two options to choose between later:
+ * LIVE TRACKING — currently reads from Supabase's `track_points` table.
+ * Two feeds write into that same table (see README for setup steps):
  *
- * Option A — Garmin LiveTrack embed
- *   Simplest to wire up: embed Tobi's Garmin LiveTrack share page in an
- *   iframe. Fast, but it's Garmin's own map/styling and can't be overlaid
- *   on our custom route map or merged with the Komoot-derived GPX line.
+ *   1. Garmin LiveTrack — a scheduled Supabase Edge Function polls Tobi's
+ *      LiveTrack session (reverse-engineered public JSON endpoint behind his
+ *      share link, no official $5k Garmin API needed) every ~20-30s and
+ *      inserts rows with source = 'garmin'.
+ *   2. Traccar Client (phone app, free/open source) — posts directly to
+ *      /api/ingest/traccar, which inserts rows with source = 'traccar'.
  *
- * Option B — Custom overlay (recommended for a fully branded map)
- *   1. Tobi's phone runs a lightweight GPS logger (e.g. the free, open
- *      source "Traccar Client" app for iOS/Android) configured to POST
- *      position pings to a custom endpoint every N seconds.
- *   2. That endpoint (a Next.js API route or a Supabase Edge Function)
- *      writes each ping into a Supabase table, e.g.:
- *        track_points(lat, lng, elevation_m, speed_kmh, recorded_at)
- *   3. getLiveTrackingStatus() below queries Supabase for the latest point
- *      (and recent history) instead of returning MOCK_LIVE_STATUS.
- *   4. The frontend can poll on an interval, or use a Supabase Realtime
- *      subscription for push updates.
- *   Tobi keeps using his Garmin watch for his own personal stats/workout
- *   recording — that's independent of this live-tracking feed.
+ * Whichever source has the most recent `recorded_at` wins — this function
+ * always just reads the single latest row, so a stale Garmin feed
+ * automatically gets superseded by a fresher Traccar point and vice versa.
+ * No special "switch feeds" logic needed.
  *
- * TODO: pick an option (or support both) and implement the real fetch here.
+ * Garmin's watch has no cellular/satellite radio of its own — LiveTrack
+ * always relays through the paired phone's Bluetooth + data connection, so
+ * gaps are expected wherever phone signal drops (e.g. forest valleys).
  * ---------------------------------------------------------------------------
- * ROUTE — Komoot decouples cleanly:
- *   Export the planned Eifelsteig tour from Komoot as a GPX file, convert it
- *   to GeoJSON (a one-time script, e.g. with `@tmcw/togeojson` or `gpx2geojson`),
- *   and store the result as a static asset (or in Supabase Storage). From
- *   that point on the route has nothing to do with Komoot anymore — it's
- *   just coordinates we own and render with our own map library (e.g.
- *   MapLibre GL or Mapbox GL).
+ * ROUTE — currently a placeholder line (see src/data/route.geo.json and
+ * scripts/generate-placeholder-route.mjs), built from approximate town
+ * coordinates, not Tobi's real trail.
  *
- * TODO: run the GPX -> GeoJSON conversion and return the real geometry here.
+ * TODO: once the real Komoot GPX export is available, convert it to this
+ * same FeatureCollection shape (one LineString per day, tagged with a `day`
+ * property — see the RouteGeoJSON type) and replace route.geo.json. Nothing
+ * else needs to change; the map, stage-zoom buttons, and progress math all
+ * key off that `day` property, not off any particular geometry.
  * ---------------------------------------------------------------------------
  */
 
-const MOCK_LIVE_STATUS: LiveTrackingStatus = {
-  isLive: false,
-  currentDay: undefined,
-  lastPoint: undefined,
-  distanceCoveredKm: undefined,
-  distanceRemainingKm: undefined,
-  lastUpdatedLabel: "Not started yet",
-};
-
 export async function getLiveTrackingStatus(): Promise<LiveTrackingStatus> {
-  // TODO: replace with a real fetch — either a Garmin LiveTrack proxy call,
-  // or a Supabase query against a `track_points` table (see notes above).
-  return MOCK_LIVE_STATUS;
+  if (!supabasePublic) {
+    // NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY aren't set
+    // yet (e.g. local dev before .env.local is configured). Fail soft.
+    return { isLive: false, lastUpdatedLabel: "Tracking not configured yet" };
+  }
+
+  const { data, error } = await supabasePublic
+    .from("track_points")
+    .select("*")
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { isLive: false, lastUpdatedLabel: "Not started yet" };
+  }
+
+  const point = {
+    lat: data.lat as number,
+    lng: data.lng as number,
+    elevationM: (data.elevation_m as number | null) ?? undefined,
+    speedKmh: (data.speed_kmh as number | null) ?? undefined,
+    timestamp: data.recorded_at as string,
+  };
+
+  const progress = computeProgressFromPoint(point, placeholderRoute as unknown as RouteGeoJSON);
+  const minutesAgo = Math.round((Date.now() - new Date(point.timestamp).getTime()) / 60000);
+
+  return {
+    isLive: minutesAgo < 15,
+    currentDay: progress.currentDay,
+    lastPoint: point,
+    distanceCoveredKm: progress.distanceCoveredKm,
+    distanceRemainingKm: progress.distanceRemainingKm,
+    lastUpdatedLabel: minutesAgo < 1 ? "Just now" : `${minutesAgo} min ago`,
+    lastUpdatedIso: point.timestamp,
+    source: data.source as "garmin" | "traccar",
+  };
 }
 
 export async function getRouteGeoJSON(): Promise<RouteGeoJSON | null> {
-  // TODO: return the parsed GPX-derived GeoJSON LineString once it's exported
-  // from Komoot and converted. Returning null keeps the map section in its
-  // "coming soon" placeholder state.
-  return null;
+  // TODO: swap this static import for the real Komoot-derived route once
+  // it exists (see notes above).
+  return placeholderRoute as unknown as RouteGeoJSON;
 }

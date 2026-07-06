@@ -1,8 +1,27 @@
 import { DAYS } from "@/data/days";
+import { getLiveTrackingStatus } from "@/lib/integrations";
+import { DayInfo } from "@/types";
 import DayCard from "./DayCard";
 import SectionHeading from "./ui/SectionHeading";
 
-export default function DaysSection() {
+// Server Component: derives each day's status from the same live tracking
+// data the map uses, so this list and the map never disagree about where
+// Tobi is. Days before the current one are "completed", the current one is
+// "in-progress" (only while a live point is actually fresh), and the rest
+// stay "upcoming" — the static status field in src/data/days.ts is just the
+// pre-race fallback for when no tracking data exists yet.
+export default async function DaysSection() {
+  const status = await getLiveTrackingStatus();
+
+  const days: DayInfo[] = DAYS.map((day): DayInfo => {
+    if (!status.currentDay) return day;
+    if (day.day < status.currentDay) return { ...day, status: "completed" as const };
+    if (day.day === status.currentDay) {
+      return { ...day, status: (status.isLive ? "in-progress" : "completed") as const };
+    }
+    return { ...day, status: "upcoming" as const };
+  });
+
   return (
     <section id="days" className="bg-paper px-6 pb-28 md:px-10 md:pb-36">
       <div className="mx-auto max-w-content">
@@ -14,7 +33,7 @@ export default function DaysSection() {
         />
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {DAYS.map((day, index) => (
+          {days.map((day, index) => (
             <DayCard key={day.day} day={day} index={index} />
           ))}
         </div>

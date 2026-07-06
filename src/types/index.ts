@@ -60,15 +60,28 @@ export interface LiveTrackingStatus {
   lastPoint?: TrackPoint;
   distanceCoveredKm?: number;
   distanceRemainingKm?: number;
-  lastUpdatedLabel?: string; // human-readable, e.g. "2 min ago"
+  lastUpdatedLabel?: string; // human-readable fallback for first paint, e.g. "2 min ago"
+  lastUpdatedIso?: string; // raw timestamp so client components can keep the label fresh
+  source?: "garmin" | "traccar"; // whichever feed produced the most recent point
 }
 
-// Minimal GeoJSON LineString shape, enough for rendering a static route on a map.
-export interface RouteGeoJSON {
+// Minimal GeoJSON shapes, enough for rendering the route on a map. The route
+// is one FeatureCollection with one LineString per day (see the `day`
+// property), so the map can show the whole trail or zoom to a single stage.
+export interface RouteDayFeature {
   type: "Feature";
-  properties: Record<string, unknown>;
+  properties: {
+    day: number;
+    from: string;
+    to: string;
+  };
   geometry: {
     type: "LineString";
     coordinates: [number, number][]; // [lng, lat]
   };
+}
+
+export interface RouteGeoJSON {
+  type: "FeatureCollection";
+  features: RouteDayFeature[];
 }
