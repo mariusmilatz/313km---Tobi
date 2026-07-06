@@ -1,6 +1,7 @@
 import { DayInfo } from "@/types";
 
-// Seven stages across the Eifelsteig, Aachen -> Trier, ~311.5 km total.
+// Seven stages across the Eifelsteig, Trier -> Aachen (south to north),
+// ~311.5 km total.
 //
 // distanceKm and elevationGainM are computed directly from Tobi's real
 // Komoot GPX export (see src/data/route.geo.json and
@@ -12,72 +13,72 @@ import { DayInfo } from "@/types";
 // The from/to town names are just the nearest known town to each cut point,
 // for a readable label. TODO: once the real stage plan is confirmed, adjust
 // the cut points in scripts/build-route-from-gpx.mjs (and re-run it) so each
-// day matches Tobi's actual overnight stops instead of a even 1/7th split.
+// day matches Tobi's actual overnight stops instead of an even 1/7th split.
 //
 // All days start as "upcoming" — statuses will flip to "in-progress" /
 // "completed" automatically once live tracking data is wired in.
 export const DAYS: DayInfo[] = [
   {
     day: 1,
-    title: "Into the Hautes Fagnes",
-    from: "Aachen",
-    to: "Monschau",
+    title: "Up from the Moselle",
+    from: "Trier",
+    to: "Wittlich",
     distanceKm: 44.5,
-    elevationGainM: 908,
+    elevationGainM: 919,
     status: "upcoming",
   },
   {
     day: 2,
-    title: "Border Forests",
-    from: "Monschau",
-    to: "Hellenthal",
-    distanceKm: 44.6,
-    elevationGainM: 1174,
+    title: "Vineyard Country",
+    from: "Wittlich",
+    to: "Manderscheid",
+    distanceKm: 44.5,
+    elevationGainM: 807,
     status: "upcoming",
   },
   {
     day: 3,
-    title: "Ridge Lines",
-    from: "Hellenthal",
-    to: "Blankenheim",
+    title: "Maar Country",
+    from: "Manderscheid",
+    to: "Daun",
     distanceKm: 44.5,
-    elevationGainM: 687,
+    elevationGainM: 1120,
     status: "upcoming",
   },
   {
     day: 4,
     title: "Volcanic Eifel",
-    from: "Blankenheim",
-    to: "Daun",
-    distanceKm: 44.4,
+    from: "Daun",
+    to: "Blankenheim",
+    distanceKm: 44.5,
     elevationGainM: 704,
     status: "upcoming",
   },
   {
     day: 5,
-    title: "Maar Country",
-    from: "Daun",
-    to: "Manderscheid",
+    title: "Ridge Lines",
+    from: "Blankenheim",
+    to: "Hellenthal",
     distanceKm: 44.5,
-    elevationGainM: 1035,
+    elevationGainM: 700,
     status: "upcoming",
   },
   {
     day: 6,
-    title: "Vineyard Approach",
-    from: "Manderscheid",
-    to: "Wittlich",
+    title: "Border Forests",
+    from: "Hellenthal",
+    to: "Monschau",
     distanceKm: 44.5,
-    elevationGainM: 657,
+    elevationGainM: 1131,
     status: "upcoming",
   },
   {
     day: 7,
-    title: "Down to the Moselle",
-    from: "Wittlich",
-    to: "Trier",
+    title: "Into the Hautes Fagnes",
+    from: "Monschau",
+    to: "Aachen",
     distanceKm: 44.5,
-    elevationGainM: 906,
+    elevationGainM: 743,
     status: "upcoming",
   },
 ];

@@ -24,7 +24,7 @@ export default function Story() {
         <Reveal delay={200}>
           <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-fog">
             Tobi is running the Eifelsteig self-supported — 313 kilometers of forest,
-            ridgeline, and volcanic landscape between Aachen and Trier. No support crew,
+            ridgeline, and volcanic landscape between Trier and Aachen. No support crew,
             no shortcuts. Just the trail, the weather, and whatever&apos;s left in the tank
             by day seven. Round Circle Films is following the whole thing.
           </p>

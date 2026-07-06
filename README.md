@@ -1,7 +1,7 @@
 # Tobi Runs the Eifelsteig
 
 Apple-style cinematic landing page for the Round Circle Films documentary
-"Tobi Runs the Eifelsteig" — 313 km, 7 days, Aachen → Trier.
+"Tobi Runs the Eifelsteig" — 313 km, 7 days, Trier → Aachen.
 
 Built with Next.js (App Router), TypeScript, and Tailwind CSS. Live tracking
 is wired up to a real Supabase backend, and the route map is built from

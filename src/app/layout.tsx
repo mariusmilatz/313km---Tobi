@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Tobi Runs the Eifelsteig | Round Circle Films",
   description:
-    "313 km. 7 days. One trail across the Eifel. Follow Tobi's self-supported run of the Eifelsteig, from Aachen to Trier — a documentary by Round Circle Films.",
+    "313 km. 7 days. One trail across the Eifel. Follow Tobi's self-supported run of the Eifelsteig, from Trier to Aachen — a documentary by Round Circle Films.",
   // TODO: add a real Open Graph image once key art from the shoot is available.
   openGraph: {
     title: "Tobi Runs the Eifelsteig",

@@ -19,7 +19,7 @@ export default function RouteOverview() {
       <div className="mx-auto max-w-content">
         <SectionHeading
           eyebrow="The Route"
-          title="Aachen to Trier, on foot"
+          title="Trier to Aachen, on foot"
           subtitle="The full Eifelsteig, broken into seven running days through forest, ridgeline, and volcanic maar country. See the interactive map in the Live Tracking section above."
           tone="light"
         />

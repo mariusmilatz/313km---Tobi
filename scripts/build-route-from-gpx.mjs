@@ -8,8 +8,10 @@
 //
 // What this does:
 //   - Parses every <trkpt> (lat/lon/ele) from the GPX.
-//   - Reverses the point order if needed so the line reads Aachen -> Trier
-//     (Komoot's export for this tour was recorded Trier -> Aachen).
+//   - Reverses the point order if needed so the line reads Trier -> Aachen
+//     (the real running direction, south to north). Komoot's raw export for
+//     this tour is already recorded Trier -> Aachen, so normally no reversal
+//     happens — this check just guards against a differently-ordered export.
 //   - Splits the path into 7 EQUAL-DISTANCE stages (~1/7th of the total
 //     each). This is a placeholder split, not Tobi's confirmed overnight
 //     stops — we don't have an authoritative list of which towns he's
@@ -113,12 +115,13 @@ function main() {
     throw new Error("No <trkpt> elements found — check GPX_PATH and file format.");
   }
 
-  // Detect direction: if the file starts closer to Trier than Aachen,
-  // reverse it so the output always reads Aachen -> Trier.
-  const startsNearTrier =
-    haversineKm(rawPoints[0], TOWNS.find((t) => t.name === "Trier")) <
-    haversineKm(rawPoints[0], TOWNS.find((t) => t.name === "Aachen"));
-  const points = startsNearTrier ? rawPoints.slice().reverse() : rawPoints;
+  // Detect direction: if the file starts closer to Aachen than Trier,
+  // reverse it so the output always reads Trier -> Aachen (the real
+  // direction Tobi runs, south to north).
+  const startsNearAachen =
+    haversineKm(rawPoints[0], TOWNS.find((t) => t.name === "Aachen")) <
+    haversineKm(rawPoints[0], TOWNS.find((t) => t.name === "Trier"));
+  const points = startsNearAachen ? rawPoints.slice().reverse() : rawPoints;
 
   const cumKm = [0];
   for (let i = 1; i < points.length; i++) {
